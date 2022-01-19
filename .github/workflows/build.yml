@@ -1,0 +1,27 @@
+name: Build Docker CI Image
+
+on:
+  push:
+  workflow_dispatch:
+    inputs:
+      event:
+        description: 'Input your event'
+        required: true
+        default: ''
+env:
+  DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_ACCESSTOKEN }}
+
+jobs:
+  build:
+    name: Build
+    runs-on: 'ubuntu-latest'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Build
+        run: docker build . -t hyperf/docker-ci:latest
+      - name: Push Images to Docker Hub
+        if: ${{ github.event.inputs.event == 'publish' }}
+        run: |
+          docker login --username limingxinleo -p $DOCKERHUB_TOKEN
+          docker push hyperf/docker-ci:latest
